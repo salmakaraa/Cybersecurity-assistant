@@ -1,20 +1,65 @@
+# =========================================
+# SYMFONY / PHP STANDARD GITIGNORE
+# =========================================
 
-###> symfony/framework-bundle ###
-/.env.local
-/.env.local.php
-/.env.*.local
-/config/secrets/prod/prod.decrypt.private.php
-/public/bundles/
-/var/
+# Composer dependencies
 /vendor/
-###< symfony/framework-bundle ###
 
-###> phpunit/phpunit ###
-/phpunit.xml
-.phpunit.result.cache
-###< phpunit/phpunit ###
+# Environment files
+.env
+.env.local
+.env.local.php
+.env.*.local
 
-###> symfony/phpunit-bridge ###
+# Symfony secret keys
+/config/secrets/*/*.encrypt.public.php
+/config/secrets/*/*.decrypt.private.php
+/config/secrets/*/decrypted/
+
+# Symfony caches, logs, sessions
+/var/
+!/var/.gitkeep
+
+# Build artifacts
+/public/bundles/
+/public/build/
+
+# PHPUnit
 .phpunit.result.cache
 /phpunit.xml
-###< symfony/phpunit-bridge ###
+
+# =========================================
+# EDITOR & SYSTEM FILES
+# =========================================
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# =========================================
+# NODE / FRONT-END (if using Webpack/Encore)
+# =========================================
+/node_modules/
+npm-debug.log
+yarn-error.log
+
+# =========================================
+# WAMP / XAMP RELATED
+# =========================================
+/wamp64/tmp/
+/wamp64/logs/
+
+# =========================================
+# ARCHIVES & MISC
+# =========================================
+*.zip
+*.tar
+*.gz
+*.rar
+*.log
