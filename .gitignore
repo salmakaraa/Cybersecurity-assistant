@@ -9,7 +9,7 @@
 .env
 .env.local
 .env.local.php
-.env.*.local
+.env.*
 
 # Symfony secret keys
 /config/secrets/*/*.encrypt.public.php
