@@ -17,10 +17,14 @@ security:
             lazy: true
             provider: app_user_provider
             custom_authenticator: App\Security\UserAuthenticator
+            form_login:
+                login_path: app_login
+                check_path: app_login
             logout:
                 path: app_logout
                 # where to redirect after logout
                 # target: app_any_route
+            user_checker: App\Security\UserChecker
 
             remember_me:
                 secret: '%kernel.secret%'
