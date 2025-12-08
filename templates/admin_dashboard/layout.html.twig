@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<style>
+    body {
+        background: linear-gradient(135deg, #0d0f1a, #1a1f2e);
+        font-family: 'Poppins', sans-serif;
+        color: #fff;
+    }
+    .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+    }
+    .sidebar {
+        width: 260px;
+        background: #11131d;
+        padding: 30px 20px;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .sidebar h2 {
+        font-size: 22px;
+        margin-bottom: 40px;
+        text-align: center;
+        letter-spacing: 1px;
+        color: #57a6ff;
+    }
+    .sidebar a {
+        display: block;
+        padding: 14px 18px;
+        border-radius: 12px;
+        color: #fff;
+        text-decoration: none;
+        margin-bottom: 15px;
+        transition: 0.3s;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.03);
+        cursor: pointer;
+    }
+    .sidebar a:hover {
+        background: #57a6ff;
+        transform: translateX(5px);
+    }
+    .content {
+        flex: 1;
+        padding: 40px;
+        transition: all 0.5s ease;
+    }
+    .hidden {
+        display: none;
+        opacity: 0;
+    }
+    .visible {
+        display: block;
+        opacity: 1;
+    }
+    .header h1 {
+        font-size: 32px;
+        font-weight: 700;
+    }
+    .btn-create {
+        background: #57a6ff;
+        padding: 12px 20px;
+        border-radius: 10px;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .btn-create:hover {
+        background: #2c79cf;
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="sidebar">
+        <h2>Cyber Admin</h2>
+
+        <a onclick="showArticles()">Manage Articles</a>
+        <a href="#">Users</a>
+        <a href="#">Settings</a>
+        <a href="{{ path('home') }}">Logout</a>
+    </div>
+
+    <!-- Welcome message -->
+    <div id="welcomeContent" class="content visible">
+        <h1>Welcome to Admin Working Space</h1>
+        <p>Use the sidebar to manage articles, users, and settings.</p>
+    </div>
+
+    <!-- Articles section -->
+    <div id="articlesContent" class="content hidden">
+        {% block admin_content %}{% endblock %}
+    </div>
+</div>
+
+<script>
+    function showArticles() {
+        // Hide welcome content
+        document.getElementById('welcomeContent').classList.remove('visible');
+        document.getElementById('welcomeContent').classList.add('hidden');
+
+        // Show articles content
+        document.getElementById('articlesContent').classList.remove('hidden');
+        document.getElementById('articlesContent').classList.add('visible');
+    }
+</script>
+
+{% endblock %}
