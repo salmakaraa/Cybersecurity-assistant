@@ -1,0 +1,18 @@
+{% extends 'admin_dashboard/layout.html.twig' %}
+
+{% block admin_content %}
+<h1>Edit Article</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    <label>Title</label>
+    <input type="text" name="title" value="{{ article.title }}" class="form-control">
+
+    <label>Description</label>
+    <textarea name="description" class="form-control">{{ article.description }}</textarea>
+
+    <label>Change File (optional)</label>
+    <input type="file" name="file" class="form-control">
+
+    <button class="btn-create mt-3">Update</button>
+</form>
+{% endblock %}
