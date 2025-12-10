@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ArticleRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User; // Add this to reference the User entity
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
 class Article
@@ -22,6 +23,13 @@ class Article
 
     #[ORM\Column(length: 255)]
     private ?string $filePath = null;
+
+    // --- New property: admin who created the article ---
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $createdBy = null;
+
+    // ----------------- Getters & Setters -----------------
 
     public function getId(): ?int
     {
@@ -63,4 +71,17 @@ class Article
 
         return $this;
     }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(User $user): static
+    {
+        $this->createdBy = $user;
+
+        return $this;
+    }
 }
+

@@ -10,7 +10,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AdminDashboardController extends AbstractController
 {
     #[Route('/admin', name: 'admin_dashboard')]
-   // #[IsGranted('ROLE_ADMIN')]
+    #[IsGranted('ROLE_ADMIN')]
     public function index(): Response
     {
         return $this->forward('App\\Controller\\AdminArticleController::index');

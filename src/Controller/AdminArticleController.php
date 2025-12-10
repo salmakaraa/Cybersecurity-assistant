@@ -42,6 +42,9 @@ class AdminArticleController extends AbstractController
                 }
             }
 
+            // ✅ Set the currently logged-in admin as creator
+            $article->setCreatedBy($this->getUser());
+
             $em->persist($article);
             $em->flush();
 

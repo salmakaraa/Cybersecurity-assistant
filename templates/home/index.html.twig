@@ -149,8 +149,8 @@
         <a href="" class="btn-glass">🚀 Start Scanning</a>
         <a href="" class="btn-glass">Logout</a>
     {% else %}
-        <a href="" class="btn-glass">🔐 Sign In</a>
-        <a href="" class="btn-glass">✨ Create Account</a>
+        <a href="{{ path('app_login') }}" class="btn-glass">🔐 Log In</a>
+        <a href="{{ path('app_register') }}" class="btn-glass">✨ Create Account</a>
     {% endif %}
 
     <div class="floating-card">
