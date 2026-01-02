@@ -144,15 +144,19 @@
         with an AI-powered platform designed for developers, students, and professionals.
     </p>
 
-    {% if app.user %}
+   <!-- {% if app.user %}
 
         <a href="" class="btn-glass">🚀 Start Scanning</a>
         <a href="" class="btn-glass">Logout</a>
     {% else %}
         <a href="{{ path('app_login') }}" class="btn-glass">🔐 Log In</a>
         <a href="{{ path('app_register') }}" class="btn-glass">✨ Create Account</a>
-    {% endif %}
+    {% endif %} -->
 
+        <a href="{{ path('app_login') }}" class="btn-glass">🔐 Log In</a>
+        <a href="{{ path('app_register') }}" class="btn-glass">✨ Create Account</a>
+
+        
     <div class="floating-card">
         <h2 style="margin-bottom:15px; font-size:2rem; color:#00ffaa;">Your AI-Powered Security Hub</h2>
         <p>

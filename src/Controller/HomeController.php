@@ -12,7 +12,7 @@ class HomeController extends AbstractController
     {
        // $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        return $this->render('home/index.html.twig', [
+        return $this->render('home/home.html.twig', [
            // 'isAdmin' => $isAdmin,
         ]);
     }

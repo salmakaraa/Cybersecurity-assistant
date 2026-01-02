@@ -11,6 +11,13 @@
 .env.local.php
 .env.*
 
+
+# Ignore all migration files
+**/migrations/*.py
+# But keep __init__.py so Django recognizes migrations package
+!**/migrations/__init__.py
+
+
 # Symfony secret keys
 /config/secrets/*/*.encrypt.public.php
 /config/secrets/*/*.decrypt.private.php
