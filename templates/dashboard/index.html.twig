@@ -1,0 +1,177 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        background: linear-gradient(135deg, #0D1117, #121826);
+        color: #fff;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .dashboard-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #00ffcc;
+        text-shadow: 0 0 6px #00ffcc;
+    }
+
+    input[type="search"] {
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 1px solid #1e2738;
+        background: #0b0f19;
+        color: #fff;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: rgba(255,255,255,0.03);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    th, td {
+        padding: 12px 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        vertical-align: middle;
+    }
+
+    th {
+        text-align: left;
+        background: rgba(0,255,170,0.1);
+    }
+
+    tr:hover {
+        background: rgba(0,255,170,0.08);
+    }
+
+    .btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        color: #000;
+        font-weight: bold;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .view-btn {
+        background: linear-gradient(90deg, #00ffaa, #00ccff);
+        transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .view-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+
+    .star-btn {
+        background: transparent;
+        color: gold;
+        font-size: 20px;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .star-btn:hover {
+        transform: scale(1.2);
+    }
+
+    .favorites-section h2 {
+        margin-bottom: 15px;
+        color: #00ffcc;
+        text-shadow: 0 0 6px #00ffcc;
+    }
+</style>
+
+<div class="dashboard-container">
+    <!-- Logout Button -->
+    <div style="text-align: right; margin-bottom: 20px;">
+        <a href="{{ path('app_logout') }}" class="btn view-btn">Logout</a>
+    </div>
+
+    <h1>User Dashboard</h1>
+
+    <form method="get">
+        <input type="search" name="search" placeholder="Search articles..." value="{{ search }}">
+    </form>
+
+    <!-- All Articles Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>View</th>
+                <th>Favorite</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+                <tr>
+                    <td>{{ article.title }}</td>
+                    <td>{{ article.description|slice(0,50) ~ '...' }}</td>
+                    <td>
+                        <a class="btn view-btn" href="{{ asset('uploads/' ~ article.filePath) }}" target="_blank">ViewPDF</a>
+                    </td>
+                    <td>
+                        {% if article.id in favoriteIds %}
+                            <a href="{{ path('dashboard_remove_favorite', {id: article.id}) }}" class="star-btn">&#9733;</a>
+                        {% else %}
+                            <a href="{{ path('dashboard_add_favorite', {id: article.id}) }}" class="star-btn">&#9734;</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="4">No articles found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Favorites Table -->
+    <div class="favorites-section">
+        <h2>Your Favorites</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>View</th>
+                    <th>Remove</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fav in favorites %}
+                    <tr>
+                        <td>{{ fav.article.title }}</td>
+                        <td>{{ fav.article.description|slice(0,50) ~ '...' }}</td>
+                        <td>
+                            <a class="btn view-btn" href="{{ asset('uploads/' ~ fav.article.filePath) }}" target="_blank">ViewPDF</a>
+                        </td>
+                        <td>
+                            <a href="{{ path('dashboard_remove_favorite', {id: fav.article.id}) }}" class="star-btn">&#9733;</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4">No favorites yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

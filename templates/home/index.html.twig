@@ -1,0 +1,170 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cybersecurity Assistant — Welcome{% endblock %}
+
+{% block body %}
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        background: #0a0f1f;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* === Cyber Particle Background === */
+    #cyber-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: radial-gradient(circle at center, #0a0f1f 0%, #04070f 100%);
+        overflow: hidden;
+    }
+
+    .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: rgba(0, 255, 170, 0.7);
+        border-radius: 50%;
+        opacity: 0.6;
+        animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+        from { transform: translateY(100vh); opacity: 0; }
+        to { transform: translateY(-20vh); opacity: 1; }
+    }
+
+    /* === Hero Section === */
+    .hero {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        padding: 20px;
+    }
+
+    .hero h1 {
+        font-size: 4rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+        background: linear-gradient(90deg, #00ffaa, #00e0ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: glow 3s infinite alternate;
+    }
+
+    @keyframes glow {
+        0% { text-shadow: 0 0 15px rgba(0, 255, 170, 0.3); }
+        100% { text-shadow: 0 0 35px rgba(0, 255, 170, 0.8); }
+    }
+
+    .hero p {
+        font-size: 1.5rem;
+        max-width: 800px;
+        margin-bottom: 40px;
+        line-height: 1.7;
+        color: #d6eaff;
+        opacity: 0.9;
+    }
+
+    /* Glass buttons */
+    .btn-glass {
+        padding: 14px 30px;
+        font-size: 1.2rem;
+        margin: 10px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: bold;
+        color: white;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        transition: 0.3s ease;
+    }
+
+    .btn-glass:hover {
+        background: rgba(0, 255, 170, 0.15);
+        border-color: #00ffaa;
+        transform: scale(1.05);
+    }
+
+    /* Floating card */
+    .floating-card {
+        margin-top: 40px;
+        width: 70%;
+        max-width: 900px;
+        padding: 30px;
+        border-radius: 15px;
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.2);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        color: #cce7ff;
+        line-height: 1.8;
+        animation: float 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes float {
+        from { transform: translateY(0px); }
+        to { transform: translateY(-10px); }
+    }
+
+</style>
+
+<!-- Cyber Particle Background -->
+<div id="cyber-bg"></div>
+
+<script>
+    // Generate animated particles
+    const bg = document.getElementById('cyber-bg');
+    for (let i = 0; i < 120; i++) {
+        let p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.animationDuration = 4 + Math.random() * 6 + 's';
+        p.style.animationDelay = Math.random() * -10 + 's';
+        bg.appendChild(p);
+    }
+</script>
+
+<!-- HERO SECTION -->
+<div class="hero">
+    <h1>Cybersecurity Assistant</h1>
+    <p>
+        Discover vulnerabilities, strengthen your skills, and level up your security knowledge
+        with an AI-powered platform designed for developers, students, and professionals.
+    </p>
+
+    {% if app.user %}
+
+        <a href="" class="btn-glass">🚀 Start Scanning</a>
+        <a href="" class="btn-glass">Logout</a>
+    {% else %}
+        <a href="{{ path('app_login') }}" class="btn-glass">🔐 Log In</a>
+        <a href="{{ path('app_register') }}" class="btn-glass">✨ Create Account</a>
+    {% endif %}
+
+    <div class="floating-card">
+        <h2 style="margin-bottom:15px; font-size:2rem; color:#00ffaa;">Your AI-Powered Security Hub</h2>
+        <p>
+            Scan your code for vulnerabilities, get instant feedback powered by Groq,
+            explore curated cybersecurity articles, and train with scenario-based challenges.
+        </p>
+        <p>
+            This platform combines <strong>AI analysis</strong>, <strong>interactive training</strong>,
+            and <strong>personalized learning paths</strong> to help you become a stronger and more confident
+            cybersecurity practitioner.
+        </p>
+    </div>
+</div>
+
+{% endblock %}

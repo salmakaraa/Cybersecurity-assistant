@@ -37,8 +37,7 @@
         font-weight: 600;
     }
 
-    input[type="email"],
-    input[type="password"] {
+    .custom-input {
         width: 100%;
         padding: 12px 14px;
         border-radius: 12px;
@@ -49,8 +48,7 @@
         margin-top: 6px;
     }
 
-    input[type="email"]:focus,
-    input[type="password"]:focus {
+    .custom-input:focus {
         border-color: #00ffcc;
         box-shadow: 0 0 12px rgba(0, 255, 170, 0.25);
         outline: none;
@@ -98,14 +96,18 @@
 
     {{ form_start(registrationForm) }}
 
-        {{ form_row(registrationForm.email) }}
+        {{ form_row(registrationForm.email, {
+            label: 'Email',
+            attr: { class: 'custom-input', placeholder: 'Enter your email' }
+        }) }}
 
         {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
+            label: 'Password',
+            attr: { class: 'custom-input', placeholder: 'Enter your password' }
         }) }}
 
         <div class="checkbox-row">
-            {{ form_row(registrationForm.agreeTerms) }}
+            {{ form_row(registrationForm.agreeTerms, { label: 'I agree to the terms' }) }}
         </div>
 
         <button type="submit" class="submit-btn">Register</button>
