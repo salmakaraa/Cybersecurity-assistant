@@ -74,9 +74,9 @@
 <div class="dashboard-container">
     <div class="sidebar">
         <h2>Cyber Admin</h2>
-
+        <a onclick="showWelcome()">Home</a>
         <a onclick="showArticles()">Manage Articles</a>
-        <a href="#">Users</a>
+        <a onclick="showUsers()">Manage Users</a>
         <a href="#">Settings</a>
         <a href="{{ path('app_logout') }}" class="btn view-btn">Logout</a>
     </div>
@@ -89,20 +89,41 @@
 
     <!-- Articles section -->
     <div id="articlesContent" class="content hidden">
-        {% block admin_content %}{% endblock %}
+        {% include 'admin_article/index.html.twig' %}
+    </div>
+
+    <!-- Users section -->
+    <div id="usersContent" class="content hidden">
+       <!-- {% include 'admin_dashboard/users.html.twig' %} -->
     </div>
 </div>
 
 <script>
+    function showWelcome() {
+        document.getElementById('welcomeContent').classList.remove('hidden');
+        document.getElementById('welcomeContent').classList.add('visible');
+        document.getElementById('articlesContent').classList.remove('visible');
+        document.getElementById('articlesContent').classList.add('hidden');
+        document.getElementById('usersContent').classList.remove('visible');
+        document.getElementById('usersContent').classList.add('hidden');
+    }
+
     function showArticles() {
-        // Hide welcome content
         document.getElementById('welcomeContent').classList.remove('visible');
         document.getElementById('welcomeContent').classList.add('hidden');
-
-        // Show articles content
         document.getElementById('articlesContent').classList.remove('hidden');
         document.getElementById('articlesContent').classList.add('visible');
+        document.getElementById('usersContent').classList.remove('visible');
+        document.getElementById('usersContent').classList.add('hidden');
+    }
+
+    function showUsers() {
+        document.getElementById('welcomeContent').classList.remove('visible');
+        document.getElementById('welcomeContent').classList.add('hidden');
+        document.getElementById('articlesContent').classList.remove('visible');
+        document.getElementById('articlesContent').classList.add('hidden');
+        document.getElementById('usersContent').classList.remove('hidden');
+        document.getElementById('usersContent').classList.add('visible');
     }
 </script>
-
 {% endblock %}

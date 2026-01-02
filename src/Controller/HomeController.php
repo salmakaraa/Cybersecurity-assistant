@@ -10,10 +10,10 @@ class HomeController extends AbstractController
     #[Route('/', name: 'home')]
     public function index(): Response
     {
-        $isAdmin = $this->isGranted('ROLE_ADMIN');
+       // $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        return $this->render('home/index.html.twig', [
-            'isAdmin' => $isAdmin,
+        return $this->render('home/home.html.twig', [
+           // 'isAdmin' => $isAdmin,
         ]);
     }
 }

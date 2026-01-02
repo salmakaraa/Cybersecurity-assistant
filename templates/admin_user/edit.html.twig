@@ -1,0 +1,15 @@
+{% extends 'admin_dashboard/layout.html.twig' %}
+
+{% block admin_content %}
+<h1>{{ user is defined ? 'Edit User' : 'Create New User' }}</h1>
+
+{{ form_start(form) }}
+    {{ form_row(form.email) }}
+    {{ form_row(form.plainPassword.first, {label: 'Password'}) }}
+    {{ form_row(form.plainPassword.second, {label: 'Repeat Password'}) }}
+    {{ form_row(form.isAdmin) }}
+
+    <button class="btn-create mt-3">{{ user is defined ? 'Update' : 'Create' }}</button>
+{{ form_end(form) }}
+
+{% endblock %}
