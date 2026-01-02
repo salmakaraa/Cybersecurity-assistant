@@ -1,34 +1,153 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Log in{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+<style>
+    body {
+        background: linear-gradient(135deg, #0D1117, #121826);
+        font-family: 'Poppins', sans-serif;
+        color: #fff;
+    }
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+    .login-wrapper {
+        max-width: 440px;
+        margin: 90px auto;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 40px 35px;
+        border-radius: 18px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 0 25px rgba(0, 255, 170, 0.12);
+        border: 1px solid rgba(0, 255, 170, 0.15);
+    }
+
+    .login-title {
+        font-size: 28px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 25px;
+        color: #00ffcc;
+        text-shadow: 0 0 8px #00ffcc;
+    }
+
+    .alert-danger {
+        background: rgba(255, 0, 0, 0.12);
+        border: 1px solid rgba(255, 0, 0, 0.2);
+        padding: 10px 15px;
+        border-radius: 10px;
+        color: #ff6b6b;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    label {
+        margin-top: 10px;
+        margin-bottom: 5px;
+        color: #9ab3d1;
+        font-weight: 600;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: #0b0f19;
+        border: 1px solid #1e2738;
+        color: #fff;
+        transition: 0.25s ease;
+        margin-bottom: 15px;
+    }
+
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+        border-color: #00ffcc;
+        box-shadow: 0 0 12px rgba(0, 255, 170, 0.25);
+        outline: none;
+    }
+
+    .remember-row {
+        margin: 10px 0 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .submit-btn {
+        width: 100%;
+        background: linear-gradient(90deg, #00ffaa, #00ccff);
+        padding: 12px 17px;
+        border: none;
+        border-radius: 14px;
+        color: #000;
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0 0 12px rgba(0, 255, 170, 0.25);
+        transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        opacity: 0.9;
+    }
+
+    .logged-msg {
+        margin-bottom: 15px;
+        color: #00e5ff;
+    }
+</style>
+
+<div class="login-wrapper">
+
+    <h1 class="login-title">Sign In Securely</h1>
+
+    {% if error %}
+        <div class="alert-danger">
+            {{ error.messageKey|trans(error.messageData, 'security') }}
         </div>
     {% endif %}
 
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+    {% if app.user %}
+        <div class="logged-msg">
+            You are logged in as {{ app.user.userIdentifier }},
+            <a href="{{ path('app_logout') }}" style="color:#00ffaa; text-decoration:underline;">Logout</a>
+        </div>
+    {% endif %}
 
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="_remember_me"> Remember me
-        </label>
-    </div>
+    <form method="post">
 
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
+        <label for="inputEmail">Email</label>
+        <input type="email"
+               value="{{ last_username }}"
+               name="email"
+               id="inputEmail"
+               autocomplete="email"
+               required autofocus
+        >
+
+        <label for="inputPassword">Password</label>
+        <input type="password"
+               name="password"
+               id="inputPassword"
+               autocomplete="current-password"
+               required
+        >
+
+        <input type="hidden"
+               name="_csrf_token"
+               value="{{ csrf_token('authenticate') }}"
+        >
+
+        <div class="remember-row">
+            <input type="checkbox" name="_remember_me" id="rememberCheck">
+            <label for="rememberCheck">Remember me</label>
+        </div>
+
+        <button class="submit-btn" type="submit">
+            Sign in
+        </button>
+    </form>
+</div>
+
 {% endblock %}
