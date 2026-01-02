@@ -1,38 +1,238 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Admin - Create New User{% endblock %}
+{% block title %}Admin — Create User{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h4>Create New User (Admin Only)</h4>
-                    </div>
-                    <div class="card-body">
-                        {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
 
-                            {{ form_row(form.email) }}
+<style>
+/* =========================
+   BODY & BACKGROUND
+========================= */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #0a0f1f;
+    overflow-x: hidden;
+    color: #e6faff;
+}
 
-                            {{ form_row(form.plainPassword.first, {label: 'Password'}) }}
-                            {{ form_row(form.plainPassword.second, {label: 'Repeat Password'}) }}
+/* =========================
+   CYBER PARTICLE BACKGROUND
+========================= */
+#cyber-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: radial-gradient(circle at center, #0a0f1f 0%, #04070f 100%);
+    overflow: hidden;
+}
 
-                            <div class="form-check mb-3">
-                                {{ form_widget(form.isAdmin) }}
-                                {{ form_label(form.isAdmin) }}
-                            </div>
+.particle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: rgba(0, 255, 170, 0.7);
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: floatUp linear infinite;
+}
 
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-success btn-lg">
-                                    Create User
-                                </button>
-                            </div>
+@keyframes floatUp {
+    from { transform: translateY(100vh); opacity: 0; }
+    to { transform: translateY(-20vh); opacity: 1; }
+}
 
-                        {{ form_end(form) }}
-                    </div>
-                </div>
+/* =========================
+   FORM CONTAINER
+========================= */
+.admin-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+}
+
+/* Glass card */
+.glass-panel {
+    width: 650px;
+    max-width: 95%;
+    padding: 40px 50px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 2px solid rgba(0, 255, 170, 0.5);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 15px 40px rgba(0, 255, 170, 0.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* =========================
+   HEADER
+========================= */
+.glass-panel h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 15px;
+    background: linear-gradient(90deg, #00ffaa, #00e0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+    text-shadow: 0 0 15px rgba(0,255,170,0.5);
+}
+
+.glass-panel p {
+    font-size: 1.4rem;
+    text-align: center;
+    margin-bottom: 35px;
+    color: #cce7ff;
+    opacity: 0.85;
+}
+
+/* =========================
+   FORM ELEMENTS
+========================= */
+.form-group {
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.form-label {
+    display: block;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #00ffaa, #00e0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(0,255,170,0.4);
+}
+
+.form-control {
+    width: 100%;
+    padding: 18px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(0,255,170,0.3);
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.form-control::placeholder {
+    color: rgba(255,255,255,0.4);
+    font-weight: 600;
+}
+
+.form-control:focus {
+    outline: none;
+    border: 2px solid #00ffaa;
+    background: rgba(0,255,170,0.1);
+    box-shadow: 0 0 20px rgba(0,255,170,0.5);
+    transform: scale(1.01);
+}
+
+/* =========================
+   CHECKBOX
+========================= */
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 40px;
+    color: #00ffaa;
+}
+
+.form-check input {
+    width: 25px;
+    height: 25px;
+    accent-color: #00ffaa;
+}
+
+/* =========================
+   SUBMIT BUTTON
+========================= */
+.btn-neon {
+    width: 100%;
+    padding: 20px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    border-radius: 15px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(0,255,170,0.5);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-neon:hover {
+    background: rgba(0,255,170,0.15);
+    border-color: #00ffaa;
+    box-shadow: 0 0 35px rgba(0,255,170,0.6), 0 0 50px rgba(0,255,170,0.3);
+    transform: scale(1.03);
+}
+
+</style>
+
+<!-- Cyber Particle Background -->
+<div id="cyber-bg"></div>
+<script>
+const bg = document.getElementById('cyber-bg');
+for (let i = 0; i < 120; i++) {
+    let p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = 4 + Math.random() * 6 + 's';
+    p.style.animationDelay = Math.random() * -10 + 's';
+    bg.appendChild(p);
+}
+</script>
+
+<!-- =========================
+   FORM
+========================= -->
+<div class="admin-wrapper">
+    <div class="glass-panel">
+        <h1>Create Admin User</h1>
+        <p>Restricted access — administrators only</p>
+
+        {{ form_start(form) }}
+
+            <div class="form-group">
+                {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder':'Enter email'}}) }}
             </div>
-        </div>
+
+            <div class="form-group">
+                {{ form_label(form.plainPassword.first, 'Password', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.plainPassword.first, {'attr': {'class': 'form-control', 'placeholder':'Enter password'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.plainPassword.second, 'Repeat Password', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.plainPassword.second, {'attr': {'class': 'form-control', 'placeholder':'Repeat password'}}) }}
+            </div>
+
+            <div class="form-check">
+                {{ form_widget(form.isAdmin, {'attr': {'class': 'form-check-input'}}) }}
+                {{ form_label(form.isAdmin, null, {'label_attr': {'class': 'form-label'}}) }}
+            </div>
+
+            <button type="submit" class="btn-neon">Create User</button>
+
+        {{ form_end(form) }}
     </div>
+</div>
+
 {% endblock %}
