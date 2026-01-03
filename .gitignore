@@ -17,6 +17,7 @@
 # But keep __init__.py so Django recognizes migrations package
 !**/migrations/__init__.py
 
+/migrations/*
 
 # Symfony secret keys
 /config/secrets/*/*.encrypt.public.php

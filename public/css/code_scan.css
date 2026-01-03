@@ -1,0 +1,600 @@
+/* ========================================
+   CODE SCANNER - CUSTOM STYLES
+   ======================================== */
+
+/* General Layout */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    margin: 0;
+    padding: 0;
+}
+
+.container-fluid {
+    padding: 0 !important;
+}
+
+/* ========================================
+   SIDEBAR STYLES
+   ======================================== */
+
+.sidebar {
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    height: 100vh;
+    position: fixed;
+    width: 300px;
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    overflow-y: auto;
+}
+
+.sidebar h4 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #ecf0f1;
+    text-align: center;
+}
+
+.sidebar hr {
+    border-color: rgba(255,255,255,0.2);
+    margin: 20px 0;
+}
+
+.sidebar h6 {
+    color: #bdc3c7;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+/* New Scan Button */
+.btn-new-scan {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.btn-new-scan:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.btn-new-scan i {
+    margin-right: 8px;
+}
+
+/* Chat List */
+.list-group {
+    margin-top: 10px;
+}
+
+.list-group-item {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    border-radius: 8px !important;
+    margin-bottom: 10px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(5px);
+    text-decoration: none;
+    color: white;
+}
+
+.list-group-item strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 5px;
+    color: #ecf0f1;
+}
+
+.list-group-item small {
+    color: #bdc3c7;
+    font-size: 12px;
+}
+
+.list-group-item .badge {
+    background: #3498db;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+/* Back and Delete buttons in sidebar */
+.btn-back-sidebar {
+    background: #7f8c8d;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-back-sidebar:hover {
+    background: #5d6d7e;
+    color: white;
+}
+
+.btn-delete-sidebar {
+    background: #e74c3c;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-delete-sidebar:hover {
+    background: #c0392b;
+}
+
+/* ========================================
+   MAIN CONTENT AREA
+   ======================================== */
+
+.main-content {
+    margin-left: 300px;
+    padding: 40px;
+    min-height: 100vh;
+}
+
+/* Welcome/Landing Section */
+.welcome-section {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.welcome-section .display-4 {
+    font-size: 48px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.welcome-section .display-4 i {
+    color: #3498db;
+    margin-right: 15px;
+}
+
+.welcome-section .lead {
+    font-size: 20px;
+    color: #7f8c8d;
+    margin-bottom: 40px;
+}
+
+.btn-start-scan {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    padding: 15px 40px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.btn-start-scan:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+/* Feature Cards */
+.feature-cards {
+    margin-top: 60px;
+}
+
+.feature-cards .card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+    background: white;
+}
+
+.feature-cards .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.feature-cards .card-body {
+    padding: 30px;
+}
+
+.feature-cards .card-body h5 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.feature-cards .card-body p {
+    color: #7f8c8d;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* ========================================
+   CHAT INTERFACE
+   ======================================== */
+
+.chat-container {
+    margin-left: 300px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: #ecf0f1;
+}
+
+/* Chat History Area */
+#chat-history {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #ecf0f1 0%, #f8f9fa 100%);
+}
+
+/* Message Bubbles */
+.message {
+    margin-bottom: 20px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message .badge {
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    display: inline-block;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.message .card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.message .card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+}
+
+/* User message (right side, blue) */
+.message.text-end .card {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+}
+
+.message.text-end .card-footer {
+    background: rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Assistant message (left side, white) */
+.message.text-start .card {
+    background: white;
+    color: #2c3e50;
+}
+
+.message.text-start .card-footer {
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    color: #7f8c8d;
+}
+
+.message .card-body {
+    padding: 20px;
+}
+
+.message .card-body pre {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.message .card-footer {
+    padding: 10px 20px;
+    font-size: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+/* ========================================
+   INPUT FORM AREA
+   ======================================== */
+
+.input-area {
+    background: white;
+    border-top: 2px solid #e9ecef;
+    padding: 25px 30px;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+.input-area textarea {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    resize: none;
+    transition: all 0.3s ease;
+}
+
+.input-area textarea:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    outline: none;
+}
+
+.input-area small {
+    color: #95a5a6;
+    font-size: 13px;
+}
+
+/* Scan Button */
+.btn-scan {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+}
+
+.btn-scan:hover {
+    background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+}
+
+.btn-scan:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-scan i {
+    margin-right: 8px;
+}
+
+/* Loading Spinner */
+.spinner-border-sm {
+    width: 16px;
+    height: 16px;
+    border-width: 2px;
+}
+
+/* ========================================
+   SCROLLBAR CUSTOMIZATION
+   ======================================== */
+
+#chat-history::-webkit-scrollbar {
+    width: 8px;
+}
+
+#chat-history::-webkit-scrollbar-track {
+    background: #ecf0f1;
+}
+
+#chat-history::-webkit-scrollbar-thumb {
+    background: #bdc3c7;
+    border-radius: 4px;
+}
+
+#chat-history::-webkit-scrollbar-thumb:hover {
+    background: #95a5a6;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .main-content,
+    .chat-container {
+        margin-left: 0;
+    }
+
+    .welcome-section .display-4 {
+        font-size: 32px;
+    }
+
+    .welcome-section .lead {
+        font-size: 16px;
+    }
+
+    .message .d-inline-block {
+        max-width: 95% !important;
+    }
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Action buttons container */
+.actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+/* Generic buttons */
+.btn-edit, .btn-delete, .btn-back {
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/* EDIT button */
+.btn-edit {
+    background: #3575e2;
+    color: white;
+}
+.btn-edit:hover {
+    background: #255cc7;
+}
+
+/* DELETE button */
+.btn-delete {
+    background: #e23636;
+    color: white;
+    text-decoration: none;
+}
+.btn-delete:hover {
+    background: #c71c1c;
+}
+
+/* BACK button */
+.btn-back {
+    background: #777;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+}
+.btn-back:hover {
+    background: #555;
+}
+
+/* MODAL OVERLAY */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.65);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+/* MODAL BOX */
+.modal-content {
+    background: #ffffff;
+    padding: 25px;
+    width: 450px;
+    border-radius: 12px;
+    box-shadow: 0 5px 30px rgba(0,0,0,0.25);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Form styling */
+.form-control {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+/* SAVE button */
+.btn-save {
+    background: #2ecc71;
+    padding: 10px 18px;
+    border-radius: 6px;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+.btn-save:hover {
+    background: #22b864;
+}
+
+/* CLOSE button */
+.btn-close {
+    background: #999;
+    padding: 10px 18px;
+    border-radius: 6px;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+.btn-close:hover {
+    background: #777;
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -2,10 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\CodeScanChat;
+use App\Entity\CodeScanMessage;
+use App\Repository\CodeScanChatRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -16,111 +19,220 @@ class CodeScanController extends AbstractController
 {
     private HttpClientInterface $httpClient;
     private string $groqApiKey;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(
         HttpClientInterface $httpClient,
-        string $groqApiKey
+        string $groqApiKey,
+        EntityManagerInterface $entityManager
     ) {
         $this->httpClient = $httpClient;
         $this->groqApiKey = $groqApiKey;
+        $this->entityManager = $entityManager;
     }
 
-    #[Route('', name: 'code_scan_index', methods: ['GET', 'POST'])]
-    public function index(Request $request, SessionInterface $session): Response
+    #[Route('', name: 'code_scan_index', methods: ['GET'])]
+    public function index(CodeScanChatRepository $chatRepository): Response
     {
-        $chatHistory = $session->get('code_scan_history', []);
-
-        if ($request->isMethod('POST')) {
-
-            // CSRF protection
-            if (!$this->isCsrfTokenValid('code_scan', $request->request->get('_token'))) {
-                return $this->json(['error' => 'Invalid CSRF token'], 403);
-            }
-
-            $code = trim($request->request->get('code', ''));
-
-            if ($code === '') {
-                return $this->json(['error' => 'Please provide source code.'], 400);
-            }
-
-            if (strlen($code) > 20000) {
-                return $this->json(['error' => 'Code too large (max 20k characters).'], 400);
-            }
-
-            // Store user input
-            $chatHistory[] = [
-                'role' => 'user',
-                'content' => $code,
-            ];
-
-            // Scan code
-            $result = $this->scanWithGroq($code);
-
-            // Store assistant output
-            $chatHistory[] = [
-                'role' => 'assistant',
-                'content' => $result,
-            ];
-
-            // Keep last 10 messages only
-            $session->set('code_scan_history', array_slice($chatHistory, -10));
-
-            if ($request->isXmlHttpRequest()) {
-                return $this->json([
-                    'response' => $result,
-                ]);
-            }
-
-            return $this->redirectToRoute('code_scan_index');
-        }
+        $user = $this->getUser();
+        $chats = $chatRepository->findBy(
+            ['user' => $user],
+            ['updatedAt' => 'DESC']
+        );
 
         return $this->render('code_scan/index.html.twig', [
-            'chatHistory' => $chatHistory,
+            'chats' => $chats,
         ]);
     }
 
-    /**
-     * STRICT static code analysis using Groq Responses API
-     */
+    #[Route('/chat/new', name: 'code_scan_new_chat', methods: ['POST'])]
+    public function newChat(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('new_chat', $request->request->get('_token'))) {
+            return $this->json(['error' => 'Invalid CSRF token'], 403);
+        }
+
+        $chat = new CodeScanChat();
+        $chat->setUser($this->getUser());
+        $chat->setTitle('New Scan - ' . date('Y-m-d H:i'));
+
+        $this->entityManager->persist($chat);
+        $this->entityManager->flush();
+
+        return $this->redirectToRoute('code_scan_chat', ['id' => $chat->getId()]);
+    }
+
+    #[Route('/chat/{id}', name: 'code_scan_chat', methods: ['GET'])]
+    public function chat(CodeScanChat $chat): Response
+    {
+        if ($chat->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->render('code_scan/chat.html.twig', [
+            'chat' => $chat,
+        ]);
+    }
+
+    #[Route('/chat/{id}/send', name: 'code_scan_send', methods: ['POST'])]
+    public function sendMessage(Request $request, CodeScanChat $chat): Response
+    {
+        if ($chat->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('code_scan', $request->request->get('_token'))) {
+            return $this->json(['error' => 'Invalid CSRF token'], 403);
+        }
+
+        $code = trim($request->request->get('code', ''));
+
+        if ($code === '') {
+            return $this->json(['error' => 'Please provide source code.'], 400);
+        }
+
+        if (strlen($code) > 20000) {
+            return $this->json(['error' => 'Code too large (max 20k characters).'], 400);
+        }
+
+        $userMessage = new CodeScanMessage();
+        $userMessage->setChat($chat);
+        $userMessage->setRole('user');
+        $userMessage->setContent($code);
+        $chat->addMessage($userMessage);
+
+        $result = $this->scanWithGroq($code);
+
+        $assistantMessage = new CodeScanMessage();
+        $assistantMessage->setChat($chat);
+        $assistantMessage->setRole('assistant');
+        $assistantMessage->setContent($result);
+        $chat->addMessage($assistantMessage);
+
+        if ($chat->getMessages()->count() === 2) {
+            $chat->setTitle($this->generateChatTitle($code));
+        }
+
+        $chat->updateTimestamp();
+
+        $this->entityManager->persist($chat);
+        $this->entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'userMessage' => [
+                'id' => $userMessage->getId(),
+                'role' => 'user',
+                'content' => $code,
+                'createdAt' => $userMessage->getCreatedAt()->format('Y-m-d H:i:s'),
+            ],
+            'assistantMessage' => [
+                'id' => $assistantMessage->getId(),
+                'role' => 'assistant',
+                'content' => $result,
+                'createdAt' => $assistantMessage->getCreatedAt()->format('Y-m-d H:i:s'),
+            ],
+        ]);
+    }
+
+    #[Route('/chat/{id}/delete', name: 'code_scan_delete', methods: ['POST'])]
+    public function deleteChat(Request $request, CodeScanChat $chat): Response
+    {
+        if ($chat->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('delete_chat', $request->request->get('_token'))) {
+            return $this->json(['error' => 'Invalid CSRF token'], 403);
+        }
+
+        $this->entityManager->remove($chat);
+        $this->entityManager->flush();
+
+        return $this->json(['success' => true]);
+    }
+
+    private function generateChatTitle(string $code): string
+    {
+        $lines = explode("\n", $code);
+        $firstLine = trim($lines[0] ?? 'Code Scan');
+        
+        $title = str_replace(['<?php', '<?', '?>'], '', $firstLine);
+        $title = trim($title);
+        
+        if (strlen($title) > 50) {
+            $title = substr($title, 0, 47) . '...';
+        }
+        
+        return $title ?: 'Code Scan - ' . date('H:i');
+    }
+
     private function scanWithGroq(string $code): string
     {
         $systemPrompt = <<<PROMPT
-You are a static code security scanner. Analyze the provided source code and identify security vulnerabilities.
+You are an expert security code analyzer. Your job is to find ALL security vulnerabilities in the provided code.
 
-CRITICAL FORMATTING RULES:
-1. Output MUST be valid JSON only
-2. Return an array of vulnerability objects
-3. Each object has: type, severity, description, recommendation
-4. If no vulnerabilities, return empty array: []
-5. Severity MUST be one of: Critical, High, Medium, Low
-6. Order by severity: Critical first, Low last
+ANALYZE FOR THESE VULNERABILITIES:
+- SQL Injection (concatenated queries, unsanitized input)
+- Cross-Site Scripting/XSS (unescaped output)
+- Remote Code Execution (eval, system, exec, shell_exec)
+- Command Injection (system calls with user input)
+- Path Traversal (file operations with user input)
+- Insecure Deserialization (unserialize with user data)
+- Hardcoded Credentials (passwords, API keys in code)
+- Weak Cryptography (MD5, SHA1 for passwords)
+- Missing Authentication/Authorization checks
+- Information Disclosure (exposed error messages)
+- CSRF (state-changing operations without tokens)
+- Open Redirect (header Location with user input)
+- File Upload issues (no validation)
+- XXE (XML parsing with external entities)
 
-EXAMPLE OUTPUT FORMAT:
-[
-  {
-    "type": "SQL Injection",
-    "severity": "High",
-    "description": "Direct concatenation of user input into SQL query",
-    "recommendation": "Use prepared statements with bound parameters"
-  }
-]
+CRITICAL: You MUST find vulnerabilities if they exist. Be thorough.
 
-DO NOT include any text outside the JSON array.
+OUTPUT FORMAT (STRICT JSON):
+{
+  "vulnerabilities": [
+    {
+      "type": "SQL Injection",
+      "severity": "Critical",
+      "description": "Specific technical explanation of the vulnerability",
+      "recommendation": "Specific fix for this code"
+    }
+  ]
+}
+
+If NO vulnerabilities found, return:
+{
+  "vulnerabilities": []
+}
+
+ONLY output valid JSON. No other text.
 PROMPT;
 
         try {
             $response = $this->httpClient->request(
                 'POST',
-                'https://api.groq.com/openai/v1/responses',
+                'https://api.groq.com/openai/v1/chat/completions',
                 [
                     'headers' => [
                         'Authorization' => 'Bearer ' . $this->groqApiKey,
                         'Content-Type'  => 'application/json',
                     ],
                     'json' => [
-                        'model' => 'openai/gpt-oss-20b',
-                        'input' => $systemPrompt . "\n\nCODE TO ANALYZE:\n" . $code,
+                        'model' => 'llama-3.3-70b-versatile',
+                        'messages' => [
+                            [
+                                'role' => 'system',
+                                'content' => $systemPrompt
+                            ],
+                            [
+                                'role' => 'user',
+                                'content' => "Analyze this code for security vulnerabilities:\n\n" . $code
+                            ]
+                        ],
                         'temperature' => 0,
+                        'response_format' => ['type' => 'json_object'],
                     ],
                     'timeout' => 60,
                 ]
@@ -131,9 +243,8 @@ PROMPT;
             }
 
             $data = $response->toArray(false);
-            $rawOutput = $data['output'][0]['content'][0]['text'] ?? '';
+            $rawOutput = $data['choices'][0]['message']['content'] ?? '';
 
-            // Parse and format the response
             return $this->formatVulnerabilities($rawOutput);
 
         } catch (\Throwable $e) {
@@ -141,24 +252,24 @@ PROMPT;
         }
     }
 
-    /**
-     * Parse LLM output and format as consistent text
-     */
     private function formatVulnerabilities(string $rawOutput): string
     {
-        // Clean the output - remove markdown code blocks if present
         $cleaned = preg_replace('/```(?:json)?\s*|\s*```/', '', $rawOutput);
         $cleaned = trim($cleaned);
 
-        // Try to parse as JSON
-        $vulnerabilities = json_decode($cleaned, true);
+        $data = json_decode($cleaned, true);
 
-        // If parsing fails or not an array, return no vulnerabilities
+        $vulnerabilities = null;
+        if (isset($data['vulnerabilities']) && is_array($data['vulnerabilities'])) {
+            $vulnerabilities = $data['vulnerabilities'];
+        } elseif (is_array($data) && !isset($data['vulnerabilities'])) {
+            $vulnerabilities = $data;
+        }
+
         if (!is_array($vulnerabilities) || empty($vulnerabilities)) {
             return $this->formatNoVulnerabilities();
         }
 
-        // Sort by severity
         $severityOrder = ['Critical' => 0, 'High' => 1, 'Medium' => 2, 'Low' => 3];
         usort($vulnerabilities, function ($a, $b) use ($severityOrder) {
             $severityA = $severityOrder[$a['severity'] ?? 'Low'] ?? 999;
@@ -166,11 +277,10 @@ PROMPT;
             return $severityA - $severityB;
         });
 
-        // Format as text
         $output = [];
         foreach ($vulnerabilities as $vuln) {
             if (!isset($vuln['type']) || !isset($vuln['severity'])) {
-                continue; // Skip invalid entries
+                continue;
             }
 
             $output[] = sprintf(
@@ -187,9 +297,6 @@ PROMPT;
             : implode("\n", $output);
     }
 
-    /**
-     * Standard "no vulnerabilities" message
-     */
     private function formatNoVulnerabilities(): string
     {
         return "No security vulnerabilities detected.";

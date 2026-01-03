@@ -1,86 +1,95 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Code Scan Chat{% endblock %}
+{% block title %}Code Scanner - All Chats{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/code_scan.css') }}">
+{% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1>Code Vulnerability Scanner Chat</h1>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 sidebar">
+            <h4>🔒 Code Scanner</h4>
+            
+            <form method="post" action="{{ path('code_scan_new_chat') }}" class="mb-3">
+                <input type="hidden" name="_token" value="{{ csrf_token('new_chat') }}">
+                <button type="submit" class="btn-new-scan">
+                    <i class="bi bi-plus-circle"></i> New Scan
+                </button>
+            </form>
 
-    <div id="chat-history" class="border p-3 mb-3" style="height: 400px; overflow-y: scroll;">
-        {% for message in chatHistory %}
-            <div class="message {% if message.role == 'user' %}text-right{% else %}text-left{% endif %}">
-                <strong>{{ message.role|capitalize }}:</strong>
-                <pre>{{ message.content|e('html') }}</pre>
+            <hr>
+
+            <h6>Recent Scans</h6>
+            <div class="list-group">
+                {% for chat in chats %}
+                    <a href="{{ path('code_scan_chat', {id: chat.id}) }}" 
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-truncate" style="flex: 1;">
+                                <strong>{{ chat.title }}</strong>
+                                <br>
+                                <small>{{ chat.updatedAt|date('M d, H:i') }}</small>
+                            </div>
+                            <span class="badge">{{ chat.messages|length }}</span>
+                        </div>
+                    </a>
+                {% else %}
+                    <p class="text-muted small">No scans yet. Create your first one!</p>
+                {% endfor %}
             </div>
-        {% endfor %}
-    </div>
-
-    <form id="code-form" method="post">
-        <input type="hidden" name="_token" value="{{ csrf_token('code_scan') }}">
-
-        <div class="form-group">
-            <label for="code">Enter your code:</label>
-            <textarea id="code" name="code" class="form-control" rows="5" required></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">Scan Code</button>
-    </form>
+        <!-- Main Content -->
+        <div class="col-md-9 main-content">
+            <div class="welcome-section">
+                <h1 class="display-4">
+                    <i class="bi bi-shield-check"></i> Code Security Scanner
+                </h1>
+                <p class="lead">Analyze your code for security vulnerabilities using AI</p>
+                
+                <div class="mt-5">
+                    <form method="post" action="{{ path('code_scan_new_chat') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('new_chat') }}">
+                        <button type="submit" class="btn-start-scan">
+                            Start New Security Scan
+                        </button>
+                    </form>
+                </div>
+
+                <div class="feature-cards mt-5">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>🔍 Deep Analysis</h5>
+                                    <p>AI-powered detection of SQL injection, XSS, RCE, and more</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>💾 Save History</h5>
+                                    <p>All your scans are saved and can be reviewed anytime</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>⚡ Fast Results</h5>
+                                    <p>Get security recommendations in seconds</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<script>
-const form = document.getElementById('code-form');
-const chat = document.getElementById('chat-history');
-
-form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const formData = new FormData(form);
-
-    try {
-        const response = await fetch('{{ path('code_scan_index') }}', {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
-
-        const data = await response.json();
-
-        if (data.error) {
-            alert(data.error);
-            return;
-        }
-
-        // Append user message
-        const userMsg = document.createElement('div');
-        userMsg.className = 'message text-right';
-        userMsg.innerHTML = `<strong>User:</strong><pre></pre>`;
-        userMsg.querySelector('pre').textContent = formData.get('code');
-        chat.appendChild(userMsg);
-
-        // Append assistant message
-        const botMsg = document.createElement('div');
-        botMsg.className = 'message text-left';
-        botMsg.innerHTML = `<strong>Assistant:</strong><pre></pre>`;
-        const botPre = botMsg.querySelector('pre');
-
-        // Optionally display AI response line by line
-        const lines = data.response.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-            botPre.textContent += lines[i] + '\n';
-        }
-
-        chat.appendChild(botMsg);
-
-        // Scroll to bottom
-        chat.scrollTop = chat.scrollHeight;
-
-        // Clear input
-        form.reset();
-
-    } catch (err) {
-        console.error('Error:', err);
-        alert('An error occurred while contacting the code analysis service.');
-    }
-});
-</script>
 {% endblock %}
