@@ -10,17 +10,38 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
+use Knp\Component\Pager\PaginatorInterface;
 #[Route('/admin/article', name: 'admin_article_')]
 class AdminArticleController extends AbstractController
 {
+    // #[Route('/', name: 'index')]
+    // public function index(ArticleRepository $repo): Response
+    // {
+    //     return $this->render('admin_article/index.html.twig', [
+    //         'articles' => $repo->findAll(),
+    //     ]);
+    // }
+               
+    
+
+
     #[Route('/', name: 'index')]
-    public function index(ArticleRepository $repo): Response
+    public function index(ArticleRepository $repo, PaginatorInterface $paginator, Request $request): Response
     {
+        $query = $repo->createQueryBuilder('a')->getQuery();  // Efficient query, no full load yet
+
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),  // Current page
+            20  // Items per page (adjust as needed)
+        );
+
         return $this->render('admin_article/index.html.twig', [
-            'articles' => $repo->findAll(),
+            'pagination' => $pagination,  // Use this instead of 'articles'
         ]);
     }
+
+
 
     #[Route('/new', name: 'new')]
     public function new(Request $request, EntityManagerInterface $em): Response
