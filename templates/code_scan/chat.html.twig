@@ -21,9 +21,18 @@
                 </button>
             </div>
 
-            <h6 class="text-truncate">{{ chat.title }}</h6>
-            <small>{{ chat.messages|length }} messages</small>
+            <!-- Chat Title with Rename Option -->
+            <div class="chat-title-section mb-2">
+                <h6 class="text-truncate" id="chat-title">{{ chat.title }}</h6>
+                <div id="rename-section" style="display: none;" class="d-flex gap-1">
+                    <input type="text" id="rename-input" class="form-control form-control-sm" value="{{ chat.title }}">
+                    <button class="btn btn-sm btn-success" onclick="submitRename({{ chat.id }})">✔</button>
+                    <button class="btn btn-sm btn-secondary" onclick="cancelRename()">✖</button>
+                </div>
+                <button class="btn btn-sm btn-outline-primary mt-1" id="rename-btn" onclick="showRename()">Rename</button>
+            </div>
 
+            <small>{{ chat.messages|length }} messages</small>
             <hr>
 
             <form method="post" action="{{ path('code_scan_new_chat') }}">
@@ -85,6 +94,7 @@
 </div>
 
 <script>
+/* ====== Chat Messages ====== */
 const chatHistory = document.getElementById('chat-history');
 const form = document.getElementById('code-form');
 const submitBtn = document.getElementById('submit-btn');
@@ -166,6 +176,7 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+/* ====== Delete Chat ====== */
 async function deleteChat(chatId) {
     if (!confirm('Are you sure you want to delete this chat?')) {
         return;
@@ -174,9 +185,7 @@ async function deleteChat(chatId) {
     try {
         const response = await fetch(`/code-scan/chat/${chatId}/delete`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: '_token={{ csrf_token('delete_chat') }}'
         });
 
@@ -188,6 +197,55 @@ async function deleteChat(chatId) {
     } catch (err) {
         console.error('Error:', err);
         alert('Failed to delete chat');
+    }
+}
+
+/* ====== Rename Chat ====== */
+const renameBtn = document.getElementById('rename-btn');
+const renameSection = document.getElementById('rename-section');
+const chatTitle = document.getElementById('chat-title');
+
+function showRename() {
+    renameBtn.style.display = 'none';
+    renameSection.style.display = 'flex';
+    document.getElementById('rename-input').focus();
+}
+
+function cancelRename() {
+    renameBtn.style.display = 'inline-block';
+    renameSection.style.display = 'none';
+    document.getElementById('rename-input').value = chatTitle.textContent;
+}
+
+async function submitRename(chatId) {
+    const newName = document.getElementById('rename-input').value.trim();
+    if (!newName) {
+        alert('Chat title cannot be empty');
+        return;
+    }
+
+    try {
+        const formData = new URLSearchParams();
+        formData.append('_token', '{{ csrf_token('rename_chat') }}');
+        formData.append('title', newName);
+
+        const response = await fetch(`/code-scan/chat/${chatId}/rename`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            chatTitle.textContent = newName;
+            cancelRename();
+        } else if (data.error) {
+            alert(data.error);
+        }
+    } catch (err) {
+        console.error('Error renaming chat:', err);
+        alert('Failed to rename chat');
     }
 }
 </script>

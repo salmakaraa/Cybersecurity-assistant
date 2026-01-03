@@ -152,6 +152,39 @@ class CodeScanController extends AbstractController
         return $this->json(['success' => true]);
     }
 
+
+
+    #[Route('/chat/{id}/rename', name: 'code_scan_rename', methods: ['POST'])]
+    public function renameChat(Request $request, CodeScanChat $chat): Response
+    {
+        if ($chat->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('rename_chat', $request->request->get('_token'))) {
+            return $this->json(['error' => 'Invalid CSRF token'], 403);
+        }
+
+        $newTitle = trim($request->request->get('title', ''));
+
+        if ($newTitle === '') {
+            return $this->json(['error' => 'Title cannot be empty'], 400);
+        }
+
+        if (strlen($newTitle) > 100) {
+            return $this->json(['error' => 'Title too long (max 100 characters)'], 400);
+        }
+
+        $chat->setTitle($newTitle);
+        $chat->updateTimestamp();
+
+        $this->entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'title' => $newTitle
+        ]);
+    }
     private function generateChatTitle(string $code): string
     {
         $lines = explode("\n", $code);
