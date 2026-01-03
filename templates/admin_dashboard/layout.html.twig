@@ -1,129 +1,237 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<style>
-    body {
-        background: linear-gradient(135deg, #0d0f1a, #1a1f2e);
-        font-family: 'Poppins', sans-serif;
-        color: #fff;
-    }
-    .dashboard-container {
-        display: flex;
-        min-height: 100vh;
-    }
-    .sidebar {
-        width: 260px;
-        background: #11131d;
-        padding: 30px 20px;
-        border-right: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    .sidebar h2 {
-        font-size: 22px;
-        margin-bottom: 40px;
-        text-align: center;
-        letter-spacing: 1px;
-        color: #57a6ff;
-    }
-    .sidebar a {
-        display: block;
-        padding: 14px 18px;
-        border-radius: 12px;
-        color: #fff;
-        text-decoration: none;
-        margin-bottom: 15px;
-        transition: 0.3s;
-        font-weight: 500;
-        background: rgba(255, 255, 255, 0.03);
-        cursor: pointer;
-    }
-    .sidebar a:hover {
-        background: #57a6ff;
-        transform: translateX(5px);
-    }
-    .content {
-        flex: 1;
-        padding: 40px;
-        transition: all 0.5s ease;
-    }
-    .hidden {
-        display: none;
-        opacity: 0;
-    }
-    .visible {
-        display: block;
-        opacity: 1;
-    }
-    .header h1 {
-        font-size: 32px;
-        font-weight: 700;
-    }
-    .btn-create {
-        background: #57a6ff;
-        padding: 12px 20px;
-        border-radius: 10px;
-        color: #fff;
-        text-decoration: none;
-        font-weight: 600;
-        transition: 0.3s;
-    }
-    .btn-create:hover {
-        background: #2c79cf;
-    }
-</style>
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}"> 
 
 <div class="dashboard-container">
     <div class="sidebar">
         <h2>Cyber Admin</h2>
-        <a onclick="showWelcome()">Home</a>
-        <a onclick="showArticles()">Manage Articles</a>
-        <a onclick="showUsers()">Manage Users</a>
-        <a href="#">Settings</a>
+        <a onclick="showSection('welcome')" style="cursor: pointer;">Home</a>
+        <a onclick="showSection('articles')" style="cursor: pointer;">Manage Articles</a>
+        <a onclick="showSection('users')" style="cursor: pointer;">Manage Users</a>
+        <a href="#" style="cursor: pointer;">Settings</a>
         <a href="{{ path('app_logout') }}" class="btn view-btn">Logout</a>
     </div>
 
-    <!-- Welcome message -->
-    <div id="welcomeContent" class="content visible">
-        <h1>Welcome to Admin Working Space</h1>
-        <p>Use the sidebar to manage articles, users, and settings.</p>
-    </div>
+    <!-- Main content area -->
+    <div class="main-content">
+        <!-- Welcome message -->
+        <div id="welcomeSection" class="content-section">
+            <h1>Welcome to Admin Working Space</h1>
+            <p>Use the sidebar to manage articles, users, and settings.</p>
+        </div>
 
-    <!-- Articles section -->
-    <div id="articlesContent" class="content hidden">
-        {% include 'admin_article/index.html.twig' %}
-    </div>
+        <!-- Articles section -->
+        <div id="articlesSection" class="content-section">
+            <div class="section-content">
+                {% include 'admin_article/_list.html.twig' with { pagination: pagination } %}
+            </div>
+        </div>
 
-    <!-- Users section -->
-    <div id="usersContent" class="content hidden">
-       <!-- {% include 'admin_dashboard/users.html.twig' %} -->
+        <!-- Users section -->
+        <div id="usersSection" class="content-section">
+            <div class="section-content">
+                {% include 'admin_user/_list.html.twig' with { users: users } %}
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    function showWelcome() {
-        document.getElementById('welcomeContent').classList.remove('hidden');
-        document.getElementById('welcomeContent').classList.add('visible');
-        document.getElementById('articlesContent').classList.remove('visible');
-        document.getElementById('articlesContent').classList.add('hidden');
-        document.getElementById('usersContent').classList.remove('visible');
-        document.getElementById('usersContent').classList.add('hidden');
+// Tab switching function
+function showSection(sectionName) {
+    console.log('Showing section:', sectionName);
+    
+    // Hide all sections
+    const allSections = document.querySelectorAll('.content-section');
+    allSections.forEach(section => {
+        section.classList.remove('active');
+        section.classList.add('hidden');
+    });
+    
+    // Show selected section
+    const selectedSection = document.getElementById(sectionName + 'Section');
+    if (selectedSection) {
+        selectedSection.classList.remove('hidden');
+        selectedSection.classList.add('active');
+        
+        // Update URL with tab parameter (without reloading page)
+        const url = new URL(window.location);
+        url.searchParams.set('tab', sectionName);
+        window.history.replaceState({}, '', url);
+        
+        // Save to session storage for page reloads
+        sessionStorage.setItem('lastActiveTab', sectionName);
     }
+}
 
-    function showArticles() {
-        document.getElementById('welcomeContent').classList.remove('visible');
-        document.getElementById('welcomeContent').classList.add('hidden');
-        document.getElementById('articlesContent').classList.remove('hidden');
-        document.getElementById('articlesContent').classList.add('visible');
-        document.getElementById('usersContent').classList.remove('visible');
-        document.getElementById('usersContent').classList.add('hidden');
+// Determine which tab to show based on multiple factors
+function determineInitialTab() {
+    console.log('Determining initial tab...');
+    
+    // 1. FIRST PRIORITY: URL parameter (from redirects in your controllers)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlTab = urlParams.get('tab');
+    if (urlTab) {
+        console.log('Found tab in URL parameter:', urlTab);
+        return urlTab;
     }
+    
+    // 2. Check if we have a saved tab from session storage (for page reloads)
+    const savedTab = sessionStorage.getItem('lastActiveTab');
+    if (savedTab && window.performance.navigation.type === 1) { // Type 1 = page reload
+        console.log('Found saved tab from session storage:', savedTab);
+        return savedTab;
+    }
+    
+    // 3. Check the REFERRER (where we came from) - YOUR SPECIFIC ROUTES
+    const referrer = document.referrer;
+    console.log('Referrer:', referrer);
+    
+    if (referrer) {
+        // ARTICLES ROUTES (from your AdminArticleController)
+        const articleRoutes = [
+            '/admin/article/new',
+            '/admin/article/edit/',
+            '/admin/article/delete/',
+            '/admin/article/',  // index
+            'admin_article_'    // route names
+        ];
+        
+        // USERS ROUTES (from your UsersController)
+        const userRoutes = [
+            '/admin/user/delete/',
+            '/admin/user/',      // index
+            '/create-admin',     // admin creation
+            'admin_user_'        // route names
+        ];
+        
+        // Check for article routes in referrer
+        for (const route of articleRoutes) {
+            if (referrer.includes(route)) {
+                console.log('Coming from article route:', route);
+                return 'articles';
+            }
+        }
+        
+        // Check for user routes in referrer
+        for (const route of userRoutes) {
+            if (referrer.includes(route)) {
+                console.log('Coming from user route:', route);
+                return 'users';
+            }
+        }
+    }
+    
+    // 4. Check current URL path fragments
+    const currentPath = window.location.pathname;
+    const currentHash = window.location.hash;
+    
+    if (currentPath.includes('article') || currentHash.includes('article')) {
+        return 'articles';
+    }
+    
+    if (currentPath.includes('user') || currentHash.includes('user')) {
+        return 'users';
+    }
+    
+    // 5. DEFAULT: Show welcome
+    console.log('Defaulting to welcome tab');
+    return 'welcome';
+}
 
-    function showUsers() {
-        document.getElementById('welcomeContent').classList.remove('visible');
-        document.getElementById('welcomeContent').classList.add('hidden');
-        document.getElementById('articlesContent').classList.remove('visible');
-        document.getElementById('articlesContent').classList.add('hidden');
-        document.getElementById('usersContent').classList.remove('hidden');
-        document.getElementById('usersContent').classList.add('visible');
-    }
+// Track navigation to know where we're going
+function setupNavigationTracking() {
+    // Listen for all link clicks
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a');
+        if (link && link.href) {
+            const href = link.href;
+            
+            // Track article-related navigation
+            if (href.includes('/admin/article/')) {
+                sessionStorage.setItem('lastContext', 'articles');
+                console.log('Navigating to article page');
+            }
+            
+            // Track user-related navigation
+            if (href.includes('/admin/user/') || href.includes('/create-admin')) {
+                sessionStorage.setItem('lastContext', 'users');
+                console.log('Navigating to user page');
+            }
+        }
+    });
+    
+    // Listen for form submissions
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (form && form.action) {
+            // Track article form submissions
+            if (form.action.includes('/admin/article/')) {
+                sessionStorage.setItem('lastContext', 'articles');
+                console.log('Submitting article form');
+            }
+            
+            // Track user form submissions
+            if (form.action.includes('/admin/user/') || form.action.includes('/create-admin')) {
+                sessionStorage.setItem('lastContext', 'users');
+                console.log('Submitting user form');
+            }
+        }
+    });
+}
+
+// Initialize everything when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Admin dashboard initialized');
+    
+    // Setup navigation tracking
+    setupNavigationTracking();
+    
+    // Determine and show the correct tab
+    const initialTab = determineInitialTab();
+    console.log('Initial tab to show:', initialTab);
+    showSection(initialTab);
+    
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab') || determineInitialTab();
+        showSection(tab);
+    });
+});
+
+// Make functions available globally (for onclick attributes)
+window.showSection = showSection;
 </script>
+
+<style>
+.main-content {
+    flex: 1;
+    padding: 40px;
+    position: relative;
+}
+
+.content-section {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.content-section.hidden {
+    display: none;
+}
+
+.section-content {
+    width: 100%;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
 {% endblock %}

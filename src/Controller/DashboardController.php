@@ -16,7 +16,7 @@ class DashboardController extends AbstractController
     public function index(Request $request, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
-
+           $tab = $request->query->get('tab', 'articles'); // default to 'articles'
         // Search functionality
         $search = $request->query->get('search', '');
         $articleRepo = $em->getRepository(Article::class);
@@ -37,6 +37,7 @@ class DashboardController extends AbstractController
         $favoriteIds = array_map(fn($f) => $f->getArticle()->getId(), $favorites);
 
         return $this->render('dashboard/index.html.twig', [
+            'active_tab' => $tab,
             'articles' => $articles,
             'favorites' => $favorites,
             'favoriteIds' => $favoriteIds,

@@ -1,0 +1,416 @@
+
+
+This project is a **Network Intrusion Detection System (NIDS)**.
+Its goal is to **capture live network traffic**, **analyze packet behavior over time**, **detect attacks using rules**, and **raise alerts** in a controlled way.
+
+The architecture is **modular** and follows a clear pipeline:
+
+```
+Sniff packets
+   ↓
+Extract features
+   ↓
+Update traffic state
+   ↓
+Apply detection rules
+   ↓
+Raise alerts (with cooldown)
+```
+
+---
+
+## 📁 alerts/
+
+### Purpose
+
+Handles **what happens when an attack is detected**.
+Detection logic does NOT live here — this folder is only about **alert management**.
+
+### 📄 alert_manager.py
+
+#### Role
+
+Centralizes alert handling so it can later be:
+
+* logged to a file
+* sent to a server
+* pushed to SIEM / dashboard (server)
+* stored in a database
+
+#### What it does
+
+```python
+def raise_alert(alert):
+```
+
+* Receives an **alert dictionary** from detection engine
+* Adds a timestamp
+* Prints it (currently for testing)
+
+#### Why this separation matters
+
+* Detection logic ≠ Alerting logic
+* Makes the system **extensible** and **clean**
+
+➡️ Future dev can replace `print()` with:
+
+* HTTP POST
+* Kafka message
+* Elasticsearch log
+* Django backend
+
+---
+
+## 📁 detection/
+
+### Purpose
+
+This is the **brain of the IDS**.
+It decides **if traffic is malicious or not**.
+
+---
+
+### 📄 engine.py
+
+#### Role
+
+The **orchestrator** of detection:
+
+* Updates traffic statistics
+* Applies detection rules
+* Prevents alert spam
+
+#### Key responsibilities
+
+##### 1️⃣ Traffic state management
+
+```python
+traffic_state = TrafficState()
+```
+
+* Global state of observed traffic
+* Stores history per source IP
+
+##### 2️⃣ Packet analysis entry point
+
+```python
+def analyze_packet(features):
+```
+
+This function is called **for every captured packet**.
+
+Steps inside:
+
+**Step 1 – Update traffic history**
+
+traffic_state.update(features)
+```
+
+**Step 2 – Apply detection rules**
+
+alerts = check_rules(features, traffic_state)
+```
+
+**Step 3 – Alert rate limiting (cooldown)**
+
+ALERT_COOLDOWN = 10
+```
+
+* Prevents repeated alerts for same attack/source
+* Uses `(alert type, src_ip)` as unique key
+
+This avoids:
+
+* Flooding logs
+* Alert fatigue
+
+##### 3️⃣ Alert memory
+
+alert_memory = {}
+```
+
+Stores last alert time per `(type, src_ip)`.
+
+---
+
+### 📄 rules.py
+
+#### Role
+
+Contains **all detection logic and thresholds**.
+
+This file answers:
+
+> “Is this behavior suspicious?”
+
+---
+
+### Detection philosophy
+
+* Uses **sliding time windows**
+* Detects **behavior patterns**, not signatures
+* Focuses on **rate-based and protocol-based anomalies**
+
+---
+
+### Global configuration
+
+```python
+TIME_WINDOW = 10  # seconds
+```
+
+All detections analyze traffic **over the last 10 seconds**.
+
+```python
+THRESHOLDS = {...}
+```
+
+Centralized thresholds per protocol:
+
+* TCP
+* UDP
+* ICMP
+
+Easy to tune without changing logic.
+
+---
+
+### Helper function
+
+```python
+get_recent_timestamps()
+```
+
+* Filters timestamps inside TIME_WINDOW
+* Implements sliding window logic
+* Prevents memory explosion
+
+---
+
+### `check_rules(features, traffic_state)`
+
+#### Role
+
+Main rule engine:
+
+* Input: current packet + historical state
+* Output: list of alerts (can be multiple)
+
+---
+
+### 🚨 TCP Rules
+
+**1️⃣ TCP Port Scan**
+Detects:
+
+* Many different destination ports
+* High packet rate in short time
+
+Typical tool:
+
+* nmap
+
+---
+
+**2️⃣ TCP SYN Flood**
+Detects:
+
+* Many SYN packets
+* Very few ACK packets
+* Indicates incomplete handshakes
+
+Classic DoS attack.
+
+---
+
+### 🚨 UDP Rules
+
+**1️⃣ UDP Flood**
+
+* High number of UDP packets
+* No connection state → easy to flood
+
+---
+
+**2️⃣ UDP Port Scan**
+
+* Multiple UDP ports probed
+* Combined with high packet rate
+
+---
+
+### 🚨 ICMP Rules
+
+**1️⃣ ICMP Echo Flood**
+
+* Counts only Echo Requests (type 8)
+* Detects ping floods
+
+---
+
+**2️⃣ Smurf Attack**
+
+* ICMP Echo Request sent to broadcast address
+* Can amplify traffic toward victim
+
+---
+
+## 📁 sniffer/
+
+### Purpose
+
+Handles **packet capture and preprocessing**.
+No detection logic here.
+
+---
+
+### 📄 capture.py
+
+#### Role
+
+Live packet capture using **Scapy**.
+
+```python
+sniff(prn=handle_packet, store=False)
+```
+
+* Captures packets in real time
+* For each packet:
+
+  * Extract features
+  * Send to detection engine
+
+This keeps sniffing **independent from detection logic**.
+
+---
+
+### 📄 features.py
+
+#### Role
+
+Converts raw packets into **normalized feature dictionaries**.
+
+This avoids coupling detection logic to Scapy internals.
+
+---
+
+### Extracted features
+
+* Source IP
+* Destination IP
+* Protocol
+* Packet length
+* Ports (TCP / UDP)
+* TCP flags
+* ICMP type
+
+Non-IP packets (ARP, STP, etc.) are ignored.
+
+➡️ This makes the IDS **protocol-focused** and efficient.
+
+---
+
+## 📁 state/
+
+### Purpose
+
+Maintains **historical traffic context** per source IP.
+
+IDS decisions are **stateful**, not packet-by-packet.
+
+---
+
+### 📄 traffic_state.py
+
+#### Role
+
+Stores and updates traffic statistics.
+
+---
+
+### State structure (per source IP)
+
+```python
+{
+  packet_count
+  timestamps
+  protocols {
+    TCP / UDP / ICMP
+  }
+}
+```
+
+Each protocol stores:
+
+* Contacted ports
+* SYN / ACK counters
+* ICMP types
+* Echo request timestamps
+
+---
+
+### `update(features)`
+
+Called for **every packet**.
+
+It:
+
+* Updates global counters
+* Updates protocol-specific data
+* Tracks ICMP echo requests for flood detection
+
+---
+
+### Why this matters
+
+* Enables **rate-based detection**
+* Enables **multi-packet correlation**
+* Foundation for advanced attacks later (DDoS, brute force, beaconing)
+
+---
+
+## 📄 main.py
+
+### Role
+
+Entry point of the IDS agent.
+
+```python
+if __name__ == "__main__":
+```
+
+* Starts packet capture
+* Runs continuously
+* Acts like a daemon/agent
+
+---
+
+## 🔁 Global Execution Flow
+
+```text
+main.py
+  ↓
+sniffer.capture.sniff()
+  ↓
+handle_packet()
+  ↓
+extract_features()
+  ↓
+analyze_packet()
+  ↓
+TrafficState.update()
+  ↓
+check_rules()
+  ↓
+raise_alert()
+```
+
+---
+
+* Add ML-based detection
+* Add alert severity levels
+* Export alerts as JSON to backend
+* Add unit tests for rules
+* Add whitelist / blacklist
+
+add arp + mL + send the output to the server 
