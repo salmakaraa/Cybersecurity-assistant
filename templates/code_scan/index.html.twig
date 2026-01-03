@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Code Scanner - All Chats{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/code_scan.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 sidebar">
+            <h4>🔒 Code Scanner</h4>
+            
+            <form method="post" action="{{ path('code_scan_new_chat') }}" class="mb-3">
+                <input type="hidden" name="_token" value="{{ csrf_token('new_chat') }}">
+                <button type="submit" class="btn-new-scan">
+                    <i class="bi bi-plus-circle"></i> New Scan
+                </button>
+            </form>
+
+            <hr>
+
+            <h6>Recent Scans</h6>
+            <div class="list-group">
+                {% for chat in chats %}
+                    <a href="{{ path('code_scan_chat', {id: chat.id}) }}" 
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-truncate" style="flex: 1;">
+                                <strong>{{ chat.title }}</strong>
+                                <br>
+                                <small>{{ chat.updatedAt|date('M d, H:i') }}</small>
+                            </div>
+                            <span class="badge">{{ chat.messages|length }}</span>
+                        </div>
+                    </a>
+                {% else %}
+                    <p class="text-muted small">No scans yet. Create your first one!</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 main-content">
+            <div class="welcome-section">
+                <h1 class="display-4">
+                    <i class="bi bi-shield-check"></i> Code Security Scanner
+                </h1>
+                <p class="lead">Analyze your code for security vulnerabilities using AI</p>
+                
+                <div class="mt-5">
+                    <form method="post" action="{{ path('code_scan_new_chat') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('new_chat') }}">
+                        <button type="submit" class="btn-start-scan">
+                            Start New Security Scan
+                        </button>
+                    </form>
+                </div>
+
+                <div class="feature-cards mt-5">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>🔍 Deep Analysis</h5>
+                                    <p>AI-powered detection of SQL injection, XSS, RCE, and more</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>💾 Save History</h5>
+                                    <p>All your scans are saved and can be reviewed anytime</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>⚡ Fast Results</h5>
+                                    <p>Get security recommendations in seconds</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
