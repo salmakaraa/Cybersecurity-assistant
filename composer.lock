@@ -3677,16 +3677,16 @@
         },
         {
             "name": "symfony/http-client",
-            "version": "v6.4.28",
+            "version": "v6.4.31",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-client.git",
-                "reference": "c9e69c185c4a845f9d46958cdb0dc7aa847f3981"
+                "reference": "f166fe476c996237666bcf7ec2cf827cd82ad573"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-client/zipball/c9e69c185c4a845f9d46958cdb0dc7aa847f3981",
-                "reference": "c9e69c185c4a845f9d46958cdb0dc7aa847f3981",
+                "url": "https://api.github.com/repos/symfony/http-client/zipball/f166fe476c996237666bcf7ec2cf827cd82ad573",
+                "reference": "f166fe476c996237666bcf7ec2cf827cd82ad573",
                 "shasum": ""
             },
             "require": {
@@ -3751,7 +3751,7 @@
                 "http"
             ],
             "support": {
-                "source": "https://github.com/symfony/http-client/tree/v6.4.28"
+                "source": "https://github.com/symfony/http-client/tree/v6.4.31"
             },
             "funding": [
                 {
@@ -3771,7 +3771,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-11-05T17:39:22+00:00"
+            "time": "2025-12-23T14:19:38+00:00"
         },
         {
             "name": "symfony/http-client-contracts",
@@ -5788,16 +5788,16 @@
         },
         {
             "name": "symfony/security-bundle",
-            "version": "v6.4.26",
+            "version": "v6.4.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/security-bundle.git",
-                "reference": "b83773107a5b83a5507df9e88bd50d495f6e8b72"
+                "reference": "508e67e68156cf3cb2b982504191b2ce34daa921"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/security-bundle/zipball/b83773107a5b83a5507df9e88bd50d495f6e8b72",
-                "reference": "b83773107a5b83a5507df9e88bd50d495f6e8b72",
+                "url": "https://api.github.com/repos/symfony/security-bundle/zipball/508e67e68156cf3cb2b982504191b2ce34daa921",
+                "reference": "508e67e68156cf3cb2b982504191b2ce34daa921",
                 "shasum": ""
             },
             "require": {
@@ -5880,7 +5880,7 @@
             "description": "Provides a tight integration of the Security component into the Symfony full-stack framework",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/security-bundle/tree/v6.4.26"
+                "source": "https://github.com/symfony/security-bundle/tree/v6.4.30"
             },
             "funding": [
                 {
@@ -5900,7 +5900,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-09-22T15:03:07+00:00"
+            "time": "2025-12-04T18:05:02+00:00"
         },
         {
             "name": "symfony/security-core",

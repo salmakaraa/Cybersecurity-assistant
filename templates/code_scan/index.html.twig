@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Code Scan Chat{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Code Vulnerability Scanner Chat</h1>
+
+    <div id="chat-history" class="border p-3 mb-3" style="height: 400px; overflow-y: scroll;">
+        {% for message in chatHistory %}
+            <div class="message {% if message.role == 'user' %}text-right{% else %}text-left{% endif %}">
+                <strong>{{ message.role|capitalize }}:</strong>
+                <pre>{{ message.content|e('html') }}</pre>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form id="code-form" method="post">
+        <input type="hidden" name="_token" value="{{ csrf_token('code_scan') }}">
+
+        <div class="form-group">
+            <label for="code">Enter your code:</label>
+            <textarea id="code" name="code" class="form-control" rows="5" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Scan Code</button>
+    </form>
+</div>
+
+<script>
+const form = document.getElementById('code-form');
+const chat = document.getElementById('chat-history');
+
+form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch('{{ path('code_scan_index') }}', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        // Append user message
+        const userMsg = document.createElement('div');
+        userMsg.className = 'message text-right';
+        userMsg.innerHTML = `<strong>User:</strong><pre></pre>`;
+        userMsg.querySelector('pre').textContent = formData.get('code');
+        chat.appendChild(userMsg);
+
+        // Append assistant message
+        const botMsg = document.createElement('div');
+        botMsg.className = 'message text-left';
+        botMsg.innerHTML = `<strong>Assistant:</strong><pre></pre>`;
+        const botPre = botMsg.querySelector('pre');
+
+        // Optionally display AI response line by line
+        const lines = data.response.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            botPre.textContent += lines[i] + '\n';
+        }
+
+        chat.appendChild(botMsg);
+
+        // Scroll to bottom
+        chat.scrollTop = chat.scrollHeight;
+
+        // Clear input
+        form.reset();
+
+    } catch (err) {
+        console.error('Error:', err);
+        alert('An error occurred while contacting the code analysis service.');
+    }
+});
+</script>
+{% endblock %}
