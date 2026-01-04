@@ -4,101 +4,122 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('css/code_scan.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/scanchat.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 {% endblock %}
 
 {% block body %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 sidebar">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <a href="{{ path('code_scan_index') }}" class="btn-back-sidebar">
-                    <i class="bi bi-arrow-left"></i> Back
-                </a>
-                <button class="btn-delete-sidebar" onclick="deleteChat({{ chat.id }})">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
 
-            <!-- Chat Title with Rename Option -->
-            <div class="chat-title-section mb-2">
-                <h6 class="text-truncate" id="chat-title">{{ chat.title }}</h6>
-                <div id="rename-section" style="display: none;" class="d-flex gap-1">
-                    <input type="text" id="rename-input" class="form-control form-control-sm" value="{{ chat.title }}">
-                    <button class="btn btn-sm btn-success" onclick="submitRename({{ chat.id }})">✔</button>
-                    <button class="btn btn-sm btn-secondary" onclick="cancelRename()">✖</button>
-                </div>
-                <button class="btn btn-sm btn-outline-primary mt-1" id="rename-btn" onclick="showRename()">Rename</button>
-            </div>
 
-            <small>{{ chat.messages|length }} messages</small>
-            <hr>
+<!-- Cyber Particle Background -->
+<div id="cyber-bg"></div>
 
-            <form method="post" action="{{ path('code_scan_new_chat') }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('new_chat') }}">
-                <button type="submit" class="btn-new-scan">
-                    <i class="bi bi-plus-circle"></i> New Scan
-                </button>
-            </form>
+<div class="chat-wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="{{ path('app_dashboard') }}" class="btn-back-sidebar">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            
         </div>
 
-        <!-- Chat Area -->
-        <div class="col-md-9 chat-container">
-            <!-- Chat History -->
-            <div id="chat-history">
-                {% for message in chat.messages %}
-                    <div class="message {{ message.role == 'user' ? 'text-end' : 'text-start' }}">
-                        <div class="d-inline-block" style="max-width: 80%;">
-                            <div class="badge bg-{{ message.role == 'user' ? 'primary' : 'secondary' }}">
-                                {{ message.role|capitalize }}
+        <!-- Chat Title with Rename Option -->
+        <div class="chat-title-section mb-2">
+            <h6 class="text-truncate" id="chat-title">{{ chat.title }}</h6>
+            <div id="rename-section" style="display: none;" class="d-flex gap-1">
+                <input type="text" id="rename-input" class="form-control form-control-sm" value="{{ chat.title }}">
+                <button class="btn btn-sm btn-success" onclick="submitRename({{ chat.id }})">✔</button>
+                <button class="btn btn-sm btn-secondary" onclick="cancelRename()">✖</button>
+            </div>
+            <button class="btn btn-sm btn-outline-primary mt-1" id="rename-btn" onclick="showRename()">Rename</button><button class="btn-delete-sidebar" onclick="deleteChat({{ chat.id }})">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+
+        <small>{{ chat.messages|length }} messages</small>
+        <hr>
+
+        <form method="post" action="{{ path('code_scan_new_chat') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('new_chat') }}">
+            <button type="submit" class="btn-new-scan">
+                <i class="bi bi-plus-circle"></i> New Scan
+            </button>
+        </form>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-container">
+        <!-- Chat History -->
+        <div id="chat-history">
+            {% for message in chat.messages %}
+                <div class="message {{ message.role == 'user' ? 'text-end' : 'text-start' }}">
+                    <div class="d-inline-block" style="max-width: 80%;">
+                        <div class="badge bg-{{ message.role == 'user' ? 'primary' : 'secondary' }}">
+                            {{ message.role|capitalize }}
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <pre>{{ message.content }}</pre>
                             </div>
-                            <div class="card">
-                                <div class="card-body">
-                                    <pre>{{ message.content }}</pre>
-                                </div>
-                                <div class="card-footer">
-                                    {{ message.createdAt|date('H:i:s') }}
-                                </div>
+                            <div class="card-footer">
+                                {{ message.createdAt|date('H:i:s') }}
                             </div>
                         </div>
                     </div>
-                {% endfor %}
-            </div>
+                </div>
+            {% endfor %}
+        </div>
 
-            <!-- Input Form -->
-            <div class="input-area">
-                <form id="code-form">
-                    <input type="hidden" name="_token" value="{{ csrf_token('code_scan') }}">
-                    
-                    <div class="mb-2">
-                        <textarea 
-                            id="code" 
-                            name="code" 
-                            class="form-control" 
-                            rows="6" 
-                            placeholder="Paste your code here for security analysis..."
-                            required></textarea>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small>Max 20,000 characters</small>
-                        <button type="submit" class="btn-scan" id="submit-btn">
-                            <i class="bi bi-send"></i> Scan Code
-                        </button>
-                    </div>
-                </form>
-            </div>
+        <!-- Input Form -->
+        <div class="input-area">
+            <form id="code-form">
+                <!-- Form Header with Button at Top Right -->
+                <div class="form-header">
+                    <small>Max 20,000 characters</small>
+                    <button type="submit" class="btn-scan" id="submit-btn">
+                        <i class="bi bi-send"></i> Scan Code
+                    </button>
+                </div>
+                
+                <!-- Hidden CSRF Token -->
+                <input type="hidden" name="_token" value="{{ csrf_token('code_scan') }}">
+                
+                <!-- Textarea -->
+                <div class="mb-2" style="position: relative;">
+                    <textarea 
+                        id="code" 
+                        name="code" 
+                        class="form-control" 
+                        rows="6" 
+                        placeholder="Paste your code here for security analysis..."
+                        maxlength="20000"
+                        required></textarea>
+            
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
+/* ====== Generate Animated Particles ====== */
+const bg = document.getElementById('cyber-bg');
+for (let i = 0; i < 120; i++) {
+    let p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = 4 + Math.random() * 6 + 's';
+    p.style.animationDelay = Math.random() * -10 + 's';
+    bg.appendChild(p);
+}
+
 /* ====== Chat Messages ====== */
 const chatHistory = document.getElementById('chat-history');
 const form = document.getElementById('code-form');
 const submitBtn = document.getElementById('submit-btn');
 
+// Scroll to bottom on load
 chatHistory.scrollTop = chatHistory.scrollHeight;
 
 form.addEventListener('submit', async function(e) {
@@ -178,7 +199,7 @@ function escapeHtml(text) {
 
 /* ====== Delete Chat ====== */
 async function deleteChat(chatId) {
-    if (!confirm('Are you sure you want to delete this chat?')) {
+    if (!confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
         return;
     }
 
@@ -248,5 +269,5 @@ async function submitRename(chatId) {
         alert('Failed to rename chat');
     }
 }
-</script>
+ </script>
 {% endblock %}

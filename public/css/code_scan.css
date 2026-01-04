@@ -196,7 +196,8 @@ body {
    ======================================== */
 
 .main-content {
-    margin-left: 320px;
+    margin-left: 10%;
+    margin-right: 10%;
     padding: 60px 80px;
     min-height: 100vh;
     background: linear-gradient(135deg, #1a1d29 0%, #2d3748 100%);

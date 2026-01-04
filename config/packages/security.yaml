@@ -29,7 +29,7 @@ security:
             
             logout:
                 path: app_logout
-                target: app_login
+                target: home  
             
             remember_me:
                 secret: '%kernel.secret%'
