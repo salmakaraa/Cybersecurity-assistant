@@ -21,100 +21,54 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
-    /**
-     * @var list<string> The user roles
-     */
     #[ORM\Column]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
     private ?string $password = null;
 
     #[ORM\Column]
     private bool $isVerified = false;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    // Correction du nom en CamelCase pour correspondre aux standards Symfony
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?UserProfile $userProfile = null;
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
+    public function getId(): ?int { return $this->id; }
 
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
+    public function getEmail(): ?string { return $this->email; }
 
-        return $this;
-    }
+    public function setEmail(string $email): static { $this->email = $email; return $this; }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->email;
-    }
+    public function getUserIdentifier(): string { return (string) $this->email; }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
-
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
-    public function setRoles(array $roles): static
+    public function setRoles(array $roles): static { $this->roles = $roles; return $this; }
+
+    public function getPassword(): ?string { return $this->password; }
+
+    public function setPassword(string $password): static { $this->password = $password; return $this; }
+
+    public function eraseCredentials(): void {}
+
+    public function isVerified(): bool { return $this->isVerified; }
+
+    public function setIsVerified(bool $isVerified): static { $this->isVerified = $isVerified; return $this; }
+
+    public function getUserProfile(): ?UserProfile { return $this->userProfile; }
+
+    public function setUserProfile(?UserProfile $userProfile): static
     {
-        $this->roles = $roles;
-
-        return $this;
-    }
-
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    #[\Deprecated]
-    public function eraseCredentials(): void
-    {
-        // @deprecated, to be removed when upgrading to Symfony 8
-    }
-
-    public function isVerified(): bool
-    {
-        return $this->isVerified;
-    }
-
-    public function setIsVerified(bool $isVerified): static
-    {
-        $this->isVerified = $isVerified;
-
+        if ($userProfile !== null && $userProfile->getUser() !== $this) {
+            $userProfile->setUser($this);
+        }
+        $this->userProfile = $userProfile;
         return $this;
     }
 }

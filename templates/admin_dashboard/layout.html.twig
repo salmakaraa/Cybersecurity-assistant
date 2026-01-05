@@ -5,30 +5,94 @@
 
 <div class="dashboard-container">
     <div class="sidebar">
-        <h2>Cyber Admin</h2>
+        <div class="sidebar-header" style="text-align: center; padding-bottom: 20px;">
+            <div class="sidebar-avatar">
+                {% if app.user.userProfile is not null and app.user.userProfile.avatar %}
+                    <img src="{{ asset('uploads/avatars/' ~ app.user.userProfile.avatar) }}" 
+                         style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #57a6ff;">
+                {% else %}
+                    <img src="{{ asset('images/default-avatar.png') }}" 
+                         style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
+                {% endif %}
+            </div>
+            <h2 style="font-size: 18px; margin-top: 10px;">{{ app.user.userProfile.firstName|default('Cyber Admin') }}</h2>
+        </div>
+
         <a onclick="showSection('welcome')" style="cursor: pointer;">Home</a>
         <a onclick="showSection('articles')" style="cursor: pointer;">Manage Articles</a>
         <a onclick="showSection('users')" style="cursor: pointer;">Manage Users</a>
-        <a href="#" style="cursor: pointer;">Settings</a>
+        <a onclick="showSection('profile')" style="cursor: pointer;">Profile Settings</a> 
         <a href="{{ path('app_logout') }}" class="btn view-btn">Logout</a>
     </div>
 
-    <!-- Main content area -->
     <div class="main-content">
-        <!-- Welcome message -->
         <div id="welcomeSection" class="content-section">
-            <h1>Welcome to Admin Working Space</h1>
-            <p>Use the sidebar to manage articles, users, and settings.</p>
+            <h1>Welcome, {{ app.user.userProfile.firstName|default(app.user.userIdentifier) }}!</h1>
+            <p>Use the sidebar to manage articles, users, and your profile.</p>
+<div style="margin-top: 30px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                 <p>Logged in as: <strong>{{ app.user.email }}</strong></p>
+                 <p>Status: <span style="color: #00ff00;">● Online</span></p>
+            </div>
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 30px;">
+                <div class="stat-card" style="background: rgba(87, 166, 255, 0.1); border: 1px solid rgba(87, 166, 255, 0.3); padding: 20px; border-radius: 15px; text-align: center;">
+                    <h3 style="color: #57a6ff; margin: 0; font-size: 14px; text-transform: uppercase;">Total Articles</h3>
+                    <p style="font-size: 32px; font-weight: bold; margin: 10px 0;">{{ pagination.getTotalItemCount }}</p>
+                </div>
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 15px; text-align: center;">
+                    <h3 style="color: #ccc; margin: 0; font-size: 14px; text-transform: uppercase;">Total Users</h3>
+                    <p style="font-size: 32px; font-weight: bold; margin: 10px 0;">{{ users|length }}</p>
+                </div>
+                <div class="stat-card" style="background: rgba(0, 255, 0, 0.05); border: 1px solid rgba(0, 255, 0, 0.2); padding: 20px; border-radius: 15px; text-align: center;">
+                    <h3 style="color: #00ff00; margin: 0; font-size: 14px; text-transform: uppercase;">System Status</h3>
+                    <p style="font-size: 18px; font-weight: bold; margin: 10px 0; color: #00ff00;">Active</p>
+                </div>
+            </div>
+
+            
         </div>
 
-        <!-- Articles section -->
+        <div id="profileSection" class="content-section">
+            <h1>Edit Admin Profile</h1>
+            <form action="{{ path('admin_profile_update') }}" method="POST" enctype="multipart/form-data">
+                <div style="display: flex; gap: 30px; background: rgba(255,255,255,0.03); padding: 25px; border-radius: 15px;">
+                    <div style="flex: 1; text-align: center;">
+                        <div class="preview-wrapper">
+                            {% if app.user.userProfile is not null and app.user.userProfile.avatar %}
+                                <img id="avatarPreview" src="{{ asset('uploads/avatars/' ~ app.user.userProfile.avatar) }}" style="width: 150px; height: 150px; border-radius: 15px; object-fit: cover;">
+                            {% else %}
+                                <img id="avatarPreview" src="{{ asset('images/default-avatar.png') }}" style="width: 150px; height: 150px; border-radius: 15px; object-fit: cover;">
+                            {% endif %}
+                        </div>
+                        <label for="avatarInput" style="display: block; margin-top: 15px; cursor: pointer; color: #57a6ff;">Change Photo</label>
+                        <input type="file" id="avatarInput" name="avatar" style="display: none;" onchange="previewImage(this)">
+                    </div>
+                    <div style="flex: 2;">
+                        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                            <div style="flex: 1;">
+                                <label style="display: block; margin-bottom: 5px;">First Name</label>
+                                <input type="text" name="firstName" value="{{ app.user.userProfile.firstName|default('') }}" style="width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px;">
+                            </div>
+                            <div style="flex: 1;">
+                                <label style="display: block; margin-bottom: 5px;">Last Name</label>
+                                <input type="text" name="lastName" value="{{ app.user.userProfile.lastName|default('') }}" style="width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px;">
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px;">Bio</label>
+                            <textarea name="bio" rows="4" style="width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px;">{{ app.user.userProfile.bio|default('') }}</textarea>
+                        </div>
+                        <button type="submit" class="btn view-btn" style="width: 100%;">Save Changes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
         <div id="articlesSection" class="content-section">
             <div class="section-content">
                 {% include 'admin_article/_list.html.twig' with { pagination: pagination } %}
             </div>
         </div>
 
-        <!-- Users section -->
         <div id="usersSection" class="content-section">
             <div class="section-content">
                 {% include 'admin_user/_list.html.twig' with { users: users } %}
@@ -41,167 +105,56 @@
 // Tab switching function
 function showSection(sectionName) {
     console.log('Showing section:', sectionName);
-    
-    // Hide all sections
     const allSections = document.querySelectorAll('.content-section');
     allSections.forEach(section => {
         section.classList.remove('active');
         section.classList.add('hidden');
     });
     
-    // Show selected section
     const selectedSection = document.getElementById(sectionName + 'Section');
     if (selectedSection) {
         selectedSection.classList.remove('hidden');
         selectedSection.classList.add('active');
-        
-        // Update URL with tab parameter (without reloading page)
         const url = new URL(window.location);
         url.searchParams.set('tab', sectionName);
         window.history.replaceState({}, '', url);
-        
-        // Save to session storage for page reloads
         sessionStorage.setItem('lastActiveTab', sectionName);
     }
 }
 
-// Determine which tab to show based on multiple factors
+// Image preview function
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('avatarPreview').src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
 function determineInitialTab() {
-    console.log('Determining initial tab...');
-    
-    // 1. FIRST PRIORITY: URL parameter (from redirects in your controllers)
     const urlParams = new URLSearchParams(window.location.search);
     const urlTab = urlParams.get('tab');
-    if (urlTab) {
-        console.log('Found tab in URL parameter:', urlTab);
-        return urlTab;
-    }
+    if (urlTab) return urlTab;
     
-    // 2. Check if we have a saved tab from session storage (for page reloads)
     const savedTab = sessionStorage.getItem('lastActiveTab');
-    if (savedTab && window.performance.navigation.type === 1) { // Type 1 = page reload
-        console.log('Found saved tab from session storage:', savedTab);
-        return savedTab;
-    }
+    if (savedTab && window.performance.navigation.type === 1) return savedTab;
     
-    // 3. Check the REFERRER (where we came from) - YOUR SPECIFIC ROUTES
     const referrer = document.referrer;
-    console.log('Referrer:', referrer);
-    
     if (referrer) {
-        // ARTICLES ROUTES (from your AdminArticleController)
-        const articleRoutes = [
-            '/admin/article/new',
-            '/admin/article/edit/',
-            '/admin/article/delete/',
-            '/admin/article/',  // index
-            'admin_article_'    // route names
-        ];
-        
-        // USERS ROUTES (from your UsersController)
-        const userRoutes = [
-            '/admin/user/delete/',
-            '/admin/user/',      // index
-            '/create-admin',     // admin creation
-            'admin_user_'        // route names
-        ];
-        
-        // Check for article routes in referrer
-        for (const route of articleRoutes) {
-            if (referrer.includes(route)) {
-                console.log('Coming from article route:', route);
-                return 'articles';
-            }
-        }
-        
-        // Check for user routes in referrer
-        for (const route of userRoutes) {
-            if (referrer.includes(route)) {
-                console.log('Coming from user route:', route);
-                return 'users';
-            }
-        }
+        if (referrer.includes('article')) return 'articles';
+        if (referrer.includes('user')) return 'users';
+        if (referrer.includes('profile')) return 'profile';
     }
     
-    // 4. Check current URL path fragments
-    const currentPath = window.location.pathname;
-    const currentHash = window.location.hash;
-    
-    if (currentPath.includes('article') || currentHash.includes('article')) {
-        return 'articles';
-    }
-    
-    if (currentPath.includes('user') || currentHash.includes('user')) {
-        return 'users';
-    }
-    
-    // 5. DEFAULT: Show welcome
-    console.log('Defaulting to welcome tab');
     return 'welcome';
 }
 
-// Track navigation to know where we're going
-function setupNavigationTracking() {
-    // Listen for all link clicks
-    document.addEventListener('click', function(e) {
-        const link = e.target.closest('a');
-        if (link && link.href) {
-            const href = link.href;
-            
-            // Track article-related navigation
-            if (href.includes('/admin/article/')) {
-                sessionStorage.setItem('lastContext', 'articles');
-                console.log('Navigating to article page');
-            }
-            
-            // Track user-related navigation
-            if (href.includes('/admin/user/') || href.includes('/create-admin')) {
-                sessionStorage.setItem('lastContext', 'users');
-                console.log('Navigating to user page');
-            }
-        }
-    });
-    
-    // Listen for form submissions
-    document.addEventListener('submit', function(e) {
-        const form = e.target;
-        if (form && form.action) {
-            // Track article form submissions
-            if (form.action.includes('/admin/article/')) {
-                sessionStorage.setItem('lastContext', 'articles');
-                console.log('Submitting article form');
-            }
-            
-            // Track user form submissions
-            if (form.action.includes('/admin/user/') || form.action.includes('/create-admin')) {
-                sessionStorage.setItem('lastContext', 'users');
-                console.log('Submitting user form');
-            }
-        }
-    });
-}
-
-// Initialize everything when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Admin dashboard initialized');
-    
-    // Setup navigation tracking
-    setupNavigationTracking();
-    
-    // Determine and show the correct tab
-    const initialTab = determineInitialTab();
-    console.log('Initial tab to show:', initialTab);
-    showSection(initialTab);
-    
-    // Handle browser back/forward buttons
-    window.addEventListener('popstate', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const tab = urlParams.get('tab') || determineInitialTab();
-        showSection(tab);
-    });
+    showSection(determineInitialTab());
 });
 
-// Make functions available globally (for onclick attributes)
 window.showSection = showSection;
 </script>
 
@@ -210,28 +163,21 @@ window.showSection = showSection;
     flex: 1;
     padding: 40px;
     position: relative;
+    background: transparent;
 }
-
 .content-section {
     display: none;
     animation: fadeIn 0.3s ease;
 }
-
 .content-section.active {
     display: block;
 }
-
 .content-section.hidden {
     display: none;
 }
-
-.section-content {
-    width: 100%;
-}
-
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 </style>
 {% endblock %}

@@ -6,7 +6,7 @@
 parameters:
     uploads_directory: '%kernel.project_dir%/public/uploads'
     groq_api_key: '%env(GROQ_API_KEY)%'
-
+    avatars_directory: '%kernel.project_dir%/public/uploads/avatars'
 services:
     # default configuration for services in *this* file
     _defaults:
